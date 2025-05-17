@@ -3,7 +3,7 @@
 namespace MovieStore.BL.Interfaces
 {
     public interface IMovieService
-     {
+      {
         List<Movie> GetAll();
 
         Movie? GetById(string id);
