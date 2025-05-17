@@ -8,38 +8,26 @@ namespace MovieStore.Controllers
     [Route("[controller]")]
     public class BusinessController : ControllerBase
     {
-        private readonly IMovieBlService _movieService;
-        private readonly IActorService _actorService;
+        private readonly IBusinessService _movieService;
 
-        public BusinessController(IMovieBlService movieService, IActorService actorService)
+        public BusinessController(IBusinessService movieService)
+
         {
             _movieService = movieService;
-            _actorService = actorService;
         }
 
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpGet("GetAllMovieWithDetails")]
-        public IActionResult GetAllMovieWithDetails()
+        [HttpGet("GetAllDetailedMovies")]
+        public IActionResult GetAllDetailedMovies()
         {
-            var result = _movieService.GetDetailedMovies();
+            var result =
+                _movieService.GetAllMovies();
 
-            if (result == null || result.Count == 0)
+            if (result != null && result.Count > 0)
             {
-                return NotFound("No movies found");
+                return Ok(result);
             }
 
-            return Ok(result);
-        }
-
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [HttpPost("AddActor")]
-        public IActionResult AddActor([FromBody] Actor actor)
-        {
-            _actorService.Add(actor);
-
-            return Ok();
+            return NotFound();
         }
 
     }
