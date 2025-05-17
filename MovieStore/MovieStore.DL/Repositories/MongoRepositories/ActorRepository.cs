@@ -7,9 +7,9 @@ using MovieStore.Models.DTO;
 
 namespace MovieStore.DL.Repositories.MongoRepositories
 {
-    public class ActorRepository : IActorRepository
+    internal class ActorRepository : IActorRepository
     {
-        private readonly IMongoCollection<Actor> _actors;
+        private readonly IMongoCollection<Actor> _actorsCollection;
         private readonly ILogger<ActorRepository> _logger;
 
         public ActorRepository(
@@ -17,57 +17,60 @@ namespace MovieStore.DL.Repositories.MongoRepositories
             ILogger<ActorRepository> logger)
         {
             _logger = logger;
-            var client = new MongoClient(
-                mongoConfig.CurrentValue.ConnectionString);
 
+            var client =
+                new MongoClient(mongoConfig.CurrentValue.ConnectionString);
             var database = client.GetDatabase(
                 mongoConfig.CurrentValue.DatabaseName);
-
-            _actors = database.GetCollection<Actor>(
-                $"{nameof(Actor)}s");
+            _actorsCollection = database.GetCollection<Actor>("ActorsDb");
         }
 
-        public void AddActor(Actor actor)
+        public async Task<List<Actor>> GetAll()
         {
-            actor.Id = System.Guid.NewGuid().ToString();
-            _actors.InsertOne(actor);
+            var result = await _actorsCollection.FindAsync(m => true);
+
+            return await result.ToListAsync();
         }
 
-        public void AddMovie(Actor movie)
+        public async Task<Actor?> GetById(string id)
         {
-            if (movie == null)
+            var result = await _actorsCollection
+                .FindAsync(m => m.Id == id);
+
+             return result.FirstOrDefault();
+        }
+
+        public async Task Add(Actor? actor)
+        {
+            if (actor == null)
             {
                 _logger.LogError("Movie is null");
+
                 return;
             }
 
             try
             {
-                movie.Id = Guid.NewGuid().ToString();
-
-                _actors.InsertOne(movie);
+                await _actorsCollection.InsertOneAsync(actor);
             }
             catch (Exception e)
             {
-               _logger.LogError(e,
-                   $"Error adding movie {e.Message}-{e.StackTrace}");
+                _logger.LogError(e, "Failed to add movie");
             }
-           
         }
 
-
-        public IEnumerable<Actor> GetActorsByIds(IEnumerable<string> actorsIds)
+        public void Update(Actor movie)
         {
-            var result = _actors.Find(actor => actorsIds.Contains(actor.Id)).ToList();
-            return result;
+            _actorsCollection.ReplaceOne(m => m.Id == movie.Id, movie);
         }
 
-        public Actor? GetById(string id)
+        public async Task<List<Actor>> GetAll(List<string> ids)
         {
-            if (string.IsNullOrEmpty(id)) return null;
+            if (ids == null || !ids.Any()) return [];
 
-            return _actors.Find(m => m.Id == id)
-                .FirstOrDefault();
+            var result = await _actorsCollection.FindAsync(m => ids.Contains(m.Id));
+
+            return await result.ToListAsync();
         }
     }
 }
