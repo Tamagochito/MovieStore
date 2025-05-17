@@ -3,11 +3,13 @@
 namespace MovieStore.BL.Interfaces
 {
     public interface IMovieService
-    {
-        List<Movie> GetAllMovies();
-
-        void AddMovie(Movie movie);
+     {
+        List<Movie> GetAll();
 
         Movie? GetById(string id);
+
+        Task Add(Movie movie);
+
+        void AddActorToMovie(string movieId, string actor);
     }
 }
