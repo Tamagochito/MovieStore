@@ -3,7 +3,7 @@
 namespace MovieStore.BL.Interfaces
 {
     public interface IMovieBlService
-    {
-        List<MovieView> GetDetailedMovies();
+     {
+        Task<List<MovieFullDetailsResponse>> GetAllMovies();
     }
 }
