@@ -7,59 +7,40 @@ using MovieStore.Models.DTO;
 
 namespace MovieStore.DL.Repositories.MongoRepositories
 {
-    public class MovieRepository : IMovieRepository
+    internal class MovieStaticDataRepository : IMovieRepository
     {
-        private readonly IMongoCollection<Movie> _movies;
-        private readonly ILogger<MovieRepository> _logger;
+        //public List<Movie> GetAll()
+        //{
+        //    return StaticDb.Movies;
+        //}
 
-        public MovieRepository(
-            IOptionsMonitor<MongoDbConfiguration> mongoConfig,
-            ILogger<MovieRepository> logger)
+        //public Movie? GetById(string id)
+        //{
+        //    if (string.IsNullOrEmpty(id)) return null;
+
+        //    return StaticDb.Movies
+        //        .FirstOrDefault(x => x.Id == id);
+        //}
+        public Task Add(Movie movie)
         {
-            _logger = logger;
-            var client = new MongoClient(
-                mongoConfig.CurrentValue.ConnectionString);
-
-            var database = client.GetDatabase(
-                mongoConfig.CurrentValue.DatabaseName);
-
-            _movies = database.GetCollection<Movie>(
-                $"{nameof(Movie)}s");
+            throw new NotImplementedException();
         }
 
-        public List<Movie> GetAllMovies()
+        public Task<List<Movie>> GetAll()
         {
-           return _movies.Find(movie => true).ToList();
+            return StaticDb.Movies;
         }
 
-        public void AddMovie(Movie movie)
+        public Task<Movie?> GetById(string id)
         {
-            if (movie == null)
-            {
-                _logger.LogError("Movie is null");
-                return;
-            }
-
-            try
-            {
-                movie.Id = Guid.NewGuid().ToString();
-
-                _movies.InsertOne(movie);
-            }
-            catch (Exception e)
-            {
-               _logger.LogError(e,
-                   $"Error adding movie {e.Message}-{e.StackTrace}");
-            }
-           
+            throw new NotImplementedException();
         }
 
-        public Movie? GetMovieById(string id)
+        public Task Update(Movie movie)
         {
-            if(string.IsNullOrEmpty(id)) return null;
-
-            return _movies.Find(m => m.Id == id)
-                .FirstOrDefault();
+            throw new NotImplementedException();
         }
     }
+
+
 }
